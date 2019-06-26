@@ -1,0 +1,2 @@
+class Proficiency < ApplicationRecord
+end
