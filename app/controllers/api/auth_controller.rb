@@ -7,9 +7,9 @@ class Api::AuthController < ApplicationController
     if @user && @user.authenticate(user_login_params[:password])
       # encode token comes from ApplicationController
       token = encode_token({ user_id: @user.id })
-      render json: { user: UserSerializer.new(@user), jwt: token }, status: :accepted
+      render json: { user: UserSerializer.new(@user), jwt: token }
     else
-      render json: { message: 'Invalid username or password' }, status: :unauthorized
+      render json: { errors: 'Invalid username or password' }
     end
   end
 
@@ -17,14 +17,12 @@ class Api::AuthController < ApplicationController
     if session_user
       render json: session_user
     else
-      render json: {errors: 'An unexpected error occured'}
+      render json: { errors: 'An unexpected error occured'}
     end
   end
 
   private
-
   def user_login_params
-    # params { user: {username: 'Chandler Bing', password: 'hi' } }
-    params.require(:user).permit(:username, :password)
+    params.require(:auth).permit(:username, :password)
   end
 end
