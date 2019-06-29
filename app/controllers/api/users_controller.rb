@@ -7,7 +7,6 @@ class Api::UsersController < ApplicationController
 
   def create
     @user = User.create(user_params)
-    byebug
     if @user.valid? && params[:password] === params[:confirmation]
       token = encode_token(@user.id)
 			render json: { user: UserSerializer.new(@user), token: token }
@@ -20,7 +19,7 @@ class Api::UsersController < ApplicationController
           @all_errors += "<<|>> #{message}"
         end
       end
-      render json: { error: @all_errors }
+      render json: { errors: @all_errors }, status: :not_acceptable
     end
   end
 

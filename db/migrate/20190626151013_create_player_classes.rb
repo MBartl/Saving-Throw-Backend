@@ -6,6 +6,7 @@ class CreatePlayerClasses < ActiveRecord::Migration[5.2]
       t.string :saving_throws
       t.text :starting_equipment
       t.text :class_levels
+      t.integer :proficiency_choices
 
       t.timestamps
     end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_26_171540) do
+ActiveRecord::Schema.define(version: 2019_06_28_213641) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -41,6 +41,7 @@ ActiveRecord::Schema.define(version: 2019_06_26_171540) do
     t.string "name"
     t.text "description"
     t.text "pictures"
+    t.integer "max_players"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -110,8 +111,6 @@ ActiveRecord::Schema.define(version: 2019_06_26_171540) do
   create_table "class_proficiency_choices", force: :cascade do |t|
     t.bigint "player_class_id"
     t.bigint "proficiency_id"
-    t.string "proficiency_type"
-    t.integer "choices"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["player_class_id"], name: "index_class_proficiency_choices_on_player_class_id"
@@ -175,6 +174,7 @@ ActiveRecord::Schema.define(version: 2019_06_26_171540) do
     t.string "saving_throws"
     t.text "starting_equipment"
     t.text "class_levels"
+    t.integer "proficiency_choices"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
