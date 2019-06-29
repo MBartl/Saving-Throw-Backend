@@ -7,17 +7,23 @@ class Api::UsersController < ApplicationController
 
   def create
     @user = User.create(user_params)
-    if @user.valid? && params[:password] === params[:confirmation]
+    if @user.valid? && params[:user][:password] === params[:user][:confirmation]
+      byebug
       token = encode_token(@user.id)
 			render json: { user: UserSerializer.new(@user), token: token }
     else
       @all_errors = ''
-      @user.errors.full_messages.each do |message|
+      @user.errors.full_messages.each do |error|
         if @all_errors === ''
-          @all_errors += "#{message}"
+          @all_errors += "#{error}"
         else
-          @all_errors += "<<|>> #{message}"
+          @all_errors += ", #{error}"
         end
+      end
+      if params[:user][:password] != params[:user][:confirmation]
+        @all_errors === '' ?
+          @all_errors += "Passwords do not match" :
+          @all_errors += ", Passwords do not match"
       end
       render json: { errors: @all_errors }, status: :not_acceptable
     end
