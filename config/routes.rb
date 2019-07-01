@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   namespace :api do
     resources :users, only: [:create, :update]
     resources :campaigns, only: [:index, :create, :update]
+    resources :characters, only: [:index, :create, :update]
 
     get '/profile', to: 'users#profile'
 

@@ -2,14 +2,14 @@ class Api::CampaignsController < ApplicationController
 
   def index
     if session_user
-      campaigns = Campaign.all.select{|campaign| campaign.users[0] === session_user}
+      @campaigns = DmCampaign.all.select{|join| join.user === session_user}.map{|join| join.campaign}
 
-      characters = Character.all.select{|character| character.user === session_user}.select{|character| character.campaigns != []}
+      @characters = Character.all.select{|character| character.user === session_user}.select{|character| character.campaigns != []}
 
-      characterCampaigns = characters.map(&:campaigns).map{|c| c[0]}.uniq if characters != []
+      @characterCampaigns = @characters.map(&:campaigns).map{|c| c[0]}.uniq if @characters != []
 
-      response = {campaigns: campaigns, characterCampaigns: characterCampaigns}
-      render json: response
+      @response = {campaigns: @campaigns, characterCampaigns: @characterCampaigns}
+      render json: @response
     end
   end
 

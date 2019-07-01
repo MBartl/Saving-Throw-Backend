@@ -141,6 +141,7 @@
 #   end
 # end
 #
+# # Seed Features
 # p = 0
 # 414.times do
 #   p += 1
@@ -148,6 +149,7 @@
 #   Feature.create(name: data['name'], player_class: PlayerClass.find{|pc| pc.name == data['class']['name']}, level: data['level'], desc: data['desc'].join('<<|>>'))
 # end
 #
+# # Spellcasting
 # q = 0
 # 8.times do
 #   q += 1
@@ -155,7 +157,6 @@
 #
 #   Spellcasting.create(ability: data['spellcasting_ability']['name'], player_class: PlayerClass.find{|pc| pc.name == data['class']['name']}, level: data['level'], info: data['info'].map{|info| info['name'] + ": " + info['desc'][0]}.join('<<|>>').gsub(/â€™/, "'").gsub(/â€�/, '"').gsub(/â€œ/, '"'))
 # end
-#
 #
 # # Seed Spells and Class/Subclass-Spell join table
 # n = 0
@@ -196,7 +197,7 @@
 # Campaign.create(name: "Seven Weddings", description: "Lilian was a witch who studied the arcane in a hamlet called Lukestown. Her love of mysticisms was only eclipsed by her love for her fiancé Marcus. Lilian loved him so much, she began crafting a pair of magical rings that would grant her and Marcus immortality. However, the powerful magics involved were well beyond Lilian’s skills. One night while working on the rings, the life and death magics went awry, killing Lilian.
 # Marcus was crushed. They laid Lilian to rest in the town’s mausoleum. It was not long before Lilian's spirit rose, fueled by her own foul magics. Marcus tried to visit, but over time, Lilian grew more and more hateful. Marcus stopped visiting when it became clear her undead nature had overpowered any humanity left within.", max_players: rand(6)+6)
 #
-# Create DM's
+# # Create DM's
 # Campaign.all.each do |campaign|
 #   if rand(2) > 0
 #     DmCampaign.create(campaign: campaign, user: User.all.sample)
