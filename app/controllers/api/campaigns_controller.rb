@@ -2,14 +2,37 @@ class Api::CampaignsController < ApplicationController
 
   def index
     if session_user
-      campaigns = Campaign.all.select{|campaign| campaign.users === session_user}[0]
-      characterCampaigns = Character.all.select{|character| character.user === session_user}.map(&:campaigns)[0].map{|campaign| campaign}[0]
-      response = {campaigns: campaigns, characters: characterCampaigns}
+      campaigns = Campaign.all.select{|campaign| campaign.users[0] === session_user}
+
+      characters = Character.all.select{|character| character.user === session_user}.select{|character| character.campaigns != []}
+
+      characterCampaigns = characters.map(&:campaigns).map{|c| c[0]}.uniq if characters != []
+
+      response = {campaigns: campaigns, characterCampaigns: characterCampaigns}
       render json: response
     end
   end
 
   def create
+    @campaign = Campaign.create(campaign_params)
 
+    if @campaign.valid?
+      render json: @campaign
+    else
+      @all_errors = ''
+      @user.errors.full_messages.each do |error|
+        if @all_errors === ''
+          @all_errors += "#{error}"
+        else
+          @all_errors += ", #{error}"
+        end
+      end
+      render json: { errors: @all_errors }, status: :not_acceptable
+    end
+  end
+
+  private
+  def campaign_params
+    params.require(:campaign).permit(:name, :description, :pictures, :max_players)
   end
 end

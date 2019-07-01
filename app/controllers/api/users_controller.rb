@@ -8,7 +8,6 @@ class Api::UsersController < ApplicationController
   def create
     @user = User.create(user_params)
     if @user.valid? && params[:user][:password] === params[:user][:confirmation]
-      byebug
       token = encode_token(@user.id)
 			render json: { user: UserSerializer.new(@user), token: token }
     else
