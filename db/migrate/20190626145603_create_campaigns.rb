@@ -5,6 +5,8 @@ class CreateCampaigns < ActiveRecord::Migration[5.2]
       t.text :description
       t.text :pictures
       t.integer :max_players
+      t.boolean :open_invite
+      t.boolean :closed
 
       t.timestamps
     end

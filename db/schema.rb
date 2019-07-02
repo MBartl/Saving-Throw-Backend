@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_28_213641) do
+ActiveRecord::Schema.define(version: 2019_07_02_024551) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -29,8 +29,8 @@ ActiveRecord::Schema.define(version: 2019_06_28_213641) do
   end
 
   create_table "campaign_characters", force: :cascade do |t|
-    t.bigint "character_id"
     t.bigint "campaign_id"
+    t.bigint "character_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["campaign_id"], name: "index_campaign_characters_on_campaign_id"
@@ -42,6 +42,8 @@ ActiveRecord::Schema.define(version: 2019_06_28_213641) do
     t.text "description"
     t.text "pictures"
     t.integer "max_players"
+    t.boolean "open_invite"
+    t.boolean "closed"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -56,8 +58,8 @@ ActiveRecord::Schema.define(version: 2019_06_28_213641) do
   end
 
   create_table "character_proficiencies", force: :cascade do |t|
-    t.bigint "proficiency_id"
     t.bigint "character_id"
+    t.bigint "proficiency_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["character_id"], name: "index_character_proficiencies_on_character_id"
@@ -76,26 +78,29 @@ ActiveRecord::Schema.define(version: 2019_06_28_213641) do
 
   create_table "character_spells", force: :cascade do |t|
     t.bigint "character_id"
-    t.bigint "spell_id"
+    t.bigint "spells_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["character_id"], name: "index_character_spells_on_character_id"
-    t.index ["spell_id"], name: "index_character_spells_on_spell_id"
+    t.index ["spells_id"], name: "index_character_spells_on_spells_id"
   end
 
   create_table "characters", force: :cascade do |t|
     t.bigint "user_id"
     t.string "name"
     t.integer "level"
+    t.integer "hit_points"
     t.text "bio"
-    t.bigint "race_id"
     t.bigint "player_class_id"
     t.bigint "subclass_id"
+    t.bigint "race_id"
+    t.bigint "subrace_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["player_class_id"], name: "index_characters_on_player_class_id"
     t.index ["race_id"], name: "index_characters_on_race_id"
     t.index ["subclass_id"], name: "index_characters_on_subclass_id"
+    t.index ["subrace_id"], name: "index_characters_on_subrace_id"
     t.index ["user_id"], name: "index_characters_on_user_id"
   end
 
@@ -111,6 +116,7 @@ ActiveRecord::Schema.define(version: 2019_06_28_213641) do
   create_table "class_proficiency_choices", force: :cascade do |t|
     t.bigint "player_class_id"
     t.bigint "proficiency_id"
+    t.integer "choices"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["player_class_id"], name: "index_class_proficiency_choices_on_player_class_id"
@@ -186,12 +192,25 @@ ActiveRecord::Schema.define(version: 2019_06_28_213641) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "race_proficiencies", force: :cascade do |t|
+    t.bigint "race_id"
+    t.bigint "subrace_id"
+    t.bigint "proficiency_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["proficiency_id"], name: "index_race_proficiencies_on_proficiency_id"
+    t.index ["race_id"], name: "index_race_proficiencies_on_race_id"
+    t.index ["subrace_id"], name: "index_race_proficiencies_on_subrace_id"
+  end
+
   create_table "race_traits", force: :cascade do |t|
     t.bigint "race_id"
+    t.bigint "subrace_id"
     t.bigint "trait_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["race_id"], name: "index_race_traits_on_race_id"
+    t.index ["subrace_id"], name: "index_race_traits_on_subrace_id"
     t.index ["trait_id"], name: "index_race_traits_on_trait_id"
   end
 
@@ -271,6 +290,16 @@ ActiveRecord::Schema.define(version: 2019_06_28_213641) do
     t.index ["player_class_id"], name: "index_subclasses_on_player_class_id"
   end
 
+  create_table "subraces", force: :cascade do |t|
+    t.string "name"
+    t.bigint "race_id"
+    t.text "desc"
+    t.string "ability_bonuses"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["race_id"], name: "index_subraces_on_race_id"
+  end
+
   create_table "traits", force: :cascade do |t|
     t.string "name"
     t.text "desc"
@@ -310,10 +339,11 @@ ActiveRecord::Schema.define(version: 2019_06_28_213641) do
   add_foreign_key "character_proficiency_choices", "characters"
   add_foreign_key "character_proficiency_choices", "proficiencies"
   add_foreign_key "character_spells", "characters"
-  add_foreign_key "character_spells", "spells"
+  add_foreign_key "character_spells", "spells", column: "spells_id"
   add_foreign_key "characters", "player_classes"
   add_foreign_key "characters", "races"
   add_foreign_key "characters", "subclasses"
+  add_foreign_key "characters", "subraces"
   add_foreign_key "characters", "users"
   add_foreign_key "class_proficiencies", "player_classes"
   add_foreign_key "class_proficiencies", "proficiencies"
@@ -325,9 +355,14 @@ ActiveRecord::Schema.define(version: 2019_06_28_213641) do
   add_foreign_key "dm_campaigns", "campaigns"
   add_foreign_key "dm_campaigns", "users"
   add_foreign_key "features", "player_classes"
+  add_foreign_key "race_proficiencies", "proficiencies"
+  add_foreign_key "race_proficiencies", "races"
+  add_foreign_key "race_proficiencies", "subraces"
   add_foreign_key "race_traits", "races"
+  add_foreign_key "race_traits", "subraces"
   add_foreign_key "race_traits", "traits"
   add_foreign_key "skills", "characters"
   add_foreign_key "spellcastings", "player_classes"
   add_foreign_key "subclasses", "player_classes"
+  add_foreign_key "subraces", "races"
 end

@@ -20,7 +20,7 @@ class CreateSkills < ActiveRecord::Migration[5.2]
       t.integer :intimidation
       t.integer :performance
       t.integer :persuasion
-
+      
       t.timestamps
     end
   end

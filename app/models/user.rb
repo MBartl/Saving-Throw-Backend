@@ -9,4 +9,5 @@ class User < ApplicationRecord
   has_many :followings, class_name: "Following", foreign_key: "following_id", dependent: :destroy
 
   has_many :characters, dependent: :destroy
+  has_many :dm_campaigns, dependent: :destroy
 end

@@ -1,4 +1,4 @@
 class CampaignCharacter < ApplicationRecord
-  belongs_to :character
   belongs_to :campaign
+  belongs_to :character
 end
