@@ -4,7 +4,7 @@ class Api::CharactersController < ApplicationController
     if session_user
       @characters = Character.all.select{|character| character.user === session_user}
 
-      render json: {characters: @characters}
+      render json: {characters: @characters}, status: :accepted
     end
   end
 
@@ -13,7 +13,7 @@ class Api::CharactersController < ApplicationController
     @character = Character.find(params[:id])
 
     @response = {character: @character, prof_choices: @character.character_proficiency_choices.count, class_choices: @class_choices}
-    render json: @response
+    render json: @response, status: :accepted
   end
 
 
@@ -27,7 +27,7 @@ class Api::CharactersController < ApplicationController
     @subrace = character_params[:subrace] ? Subrace.find{|sr| sr.name == character_params[:subrace]} : nil
 
     # Create Character
-    @character = Character.create(user: @user, name: character_params[:name], level: character_params[:level], bio: @bio, hit_points: @player_class.hit_die, hp_levels: 1, player_class: @player_class, race: @race, subclass: @subclass, subrace: @subrace)
+    @character = Character.new(user: @user, name: character_params[:name], level: character_params[:level], bio: @bio, hit_points: @player_class.hit_die, hp_levels: 1, player_class: @player_class, race: @race, subclass: @subclass, subrace: @subrace)
 
     # Create Ability Score
     @rawscore = character_params[:ability_score].split(', ')
@@ -46,7 +46,7 @@ class Api::CharactersController < ApplicationController
 
       @response = {character: @character, prof_choices:   @character.character_proficiency_choices.count, class_choices: @class_choices}
 
-      render json: @response
+      render json: @response, status: :accepted
     else
       @all_errors = ''
       @character.errors.full_messages.each do |error|

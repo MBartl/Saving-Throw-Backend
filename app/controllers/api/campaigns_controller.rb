@@ -9,7 +9,7 @@ class Api::CampaignsController < ApplicationController
       @characterCampaigns = @characters.map(&:campaigns).map{|c| c[0]}.uniq if @characters != []
 
       @response = {campaigns: @campaigns, characterCampaigns: @characterCampaigns}
-      render json: @response
+      render json: @response, status: :accepted
     end
   end
 
@@ -29,6 +29,14 @@ class Api::CampaignsController < ApplicationController
       end
       render json: { errors: @all_errors }, status: :not_acceptable
     end
+  end
+
+  def discover
+    @campaigns = Campaign.all.select{|c| c.characters.count < c.max_players}
+    @dmNeeded = Campaign.all.select{|c| c.dm_campaigns === []}
+
+    @response = { campaigns: @campaigns, dmNeeded: @dmNeeded }
+    render json: @response, status: :accepted
   end
 
   private
