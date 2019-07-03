@@ -259,7 +259,6 @@ CharacterProficiency.reset_pk_sequence
 Character.reset_pk_sequence
 
 
-
 # Create character proficiencies
 def create_proficiencies(new, ability_score)
   counter = (new.player_class.proficiency_choices - new.character_proficiency_choices.count)
@@ -315,79 +314,13 @@ def create_skills(new, ability_score)
 end
 
 
-# Create characters (1 of 2)
-16.times do
-  # Create character
-  player_class = PlayerClass.all.sample
-  player_race = Race.all.sample
-  level = rand(12)+3
-  user = User.all.sample
-  new = Character.create(user: user, name: Faker::Games::WorldOfWarcraft.unique.hero, level: level, bio: Faker::Books::Dune.unique.quote, hit_points: player_class.hit_die, player_class: player_class, race: player_race, subclass: Subclass.select{|x| x.player_class == player_class}.sample, subrace: Subrace.select{|x| x.race == player_race}.sample)
-
-  # Create AbilityScore
-  ability_score = AbilityScore.create(character: new, strength: rand(9)+8, dexterity: rand(9)+8, constitution: rand(9)+9, intelligence: rand(9)+8, wisdom: rand(9)+8, charisma: rand(9)+8)
-
-  # Create CharacterProficiency join
-  player_class.class_proficiencies.each do |class_proficiency|
-    CharacterProficiency.create(character: new, proficiency: class_proficiency.proficiency)
-  end
-
-  # Add Hit Points
-  hp = new.hit_points
-  (new.level-1).times do
-    hp += rand(new.player_class.hit_die-2)+2
-  end
-  new.update(hit_points: hp)
-
-  # Add race and subrace bonuses
-  str_bonus = new.race.ability_bonuses[1].to_i
-  if new.subrace
-    str_bonus = new.subrace.ability_bonuses[1].to_i if new.subrace.ability_bonuses[1].to_i > new.race.ability_bonuses[1].to_i
-  end
-  ability_score.update(strength: ability_score.strength += str_bonus) if str_bonus > 0
-
-  dex_bonus = new.race.ability_bonuses[4].to_i
-  if new.subrace
-    dex_bonus = new.subrace.ability_bonuses[4].to_i if new.subrace.ability_bonuses[4].to_i > new.race.ability_bonuses[4].to_i
-  end
-  ability_score.update(dexterity: ability_score.dexterity += dex_bonus) if dex_bonus > 0
-
-  const_bonus = new.race.ability_bonuses[7].to_i
-  if new.subrace
-    const_bonus = new.subrace.ability_bonuses[7].to_i if new.subrace.ability_bonuses[7].to_i > new.race.ability_bonuses[7].to_i
-  end
-  ability_score.update(constitution: ability_score.constitution += const_bonus) if const_bonus > 0
-
-  int_bonus = new.race.ability_bonuses[10].to_i
-  if new.subrace
-    int_bonus = new.subrace.ability_bonuses[10].to_i if new.subrace.ability_bonuses[10].to_i > new.race.ability_bonuses[10].to_i
-  end
-  ability_score.update(intelligence: ability_score.intelligence += int_bonus) if int_bonus > 0
-
-  wis_bonus = new.race.ability_bonuses[13].to_i
-  if new.subrace
-    wis_bonus = new.subrace.ability_bonuses[13].to_i if new.subrace.ability_bonuses[13].to_i > new.race.ability_bonuses[13].to_i
-  end
-  ability_score.update(wisdom: ability_score.wisdom += wis_bonus) if wis_bonus > 0
-
-  cha_bonus = new.race.ability_bonuses[16].to_i
-  if new.subrace
-    cha_bonus = new.subrace.ability_bonuses[16].to_i if new.subrace.ability_bonuses[16].to_i > new.race.ability_bonuses[16].to_i
-  end
-  ability_score.update(charisma: ability_score.charisma += cha_bonus) if cha_bonus > 0
-
-
-  create_proficiencies(new, ability_score)
-  create_skills(new, ability_score)
-end
-
-# Create characters (2 of 2)
-24.times do
-  # Create character
+# Create characters
+def createCharacter(name)
   player_class = PlayerClass.all.sample
   player_race = Race.all.sample
   user = User.all.sample
-  new = Character.create(user: user, name: Faker::Games::ElderScrolls.unique.name, level: rand(12)+3, bio: Faker::Books::Dune.unique.quote, hit_points: player_class.hit_die, player_class: player_class, race: player_race, subclass: Subclass.select{|x| x.player_class == player_class}.sample, subrace: Subrace.select{|x| x.race == player_race}.sample)
+  level = rand(16)
+  new = Character.create(user: user, name: name, level: level, bio: Faker::Books::Dune.unique.quote, hit_points: player_class.hit_die, hp_levels: level, player_class: player_class, race: player_race, subclass: Subclass.select{|x| x.player_class == player_class}.sample, subrace: Subrace.select{|x| x.race == player_race}.sample)
 
   # Create AbilityScore
   ability_score = AbilityScore.create(character: new, strength: rand(9)+8, dexterity: rand(9)+8, constitution: rand(9)+9, intelligence: rand(9)+8, wisdom: rand(9)+8, charisma: rand(9)+8)
@@ -441,15 +374,31 @@ end
   create_skills(new, ability_score)
 end
 
+
+# Create character names (1 of 2)
+16.times do
+  name = Faker::Games::WorldOfWarcraft.unique.hero
+  createCharacter(name)
+end
+
+# Create character names (1 of 2)
+24.times do
+  # Create character
+  name = Faker::Games::ElderScrolls.unique.name
+  createCharacter(name)
+end
+
+
 # THE LEGEND #
 1.times do
   player_class = PlayerClass.all[6]
-  theLegendPB = Character.create(user: User.all.sample, name: "Paul Blart the Magnificent", level: 20, bio: "Safety never takes a holiday.", race: Race.all[3], player_class: player_class, hit_points: 121, subclass: Subclass.find {|x| x.player_class == player_class})
+  theLegendPB = Character.create(user: User.all.sample, name: "Paul Blart the Magnificent", level: 20, bio: "Safety never takes a holiday.", race: Race.all[3], player_class: player_class, hit_points: 161, hp_levels: 20, subclass: Subclass.find {|x| x.player_class == player_class})
   ability_score = AbilityScore.create(character: theLegendPB, strength: 22, dexterity: 18, constitution: 20, intelligence: 8, wisdom: 24, charisma: 30)
 
   create_proficiencies(theLegendPB, ability_score)
   create_skills(theLegendPB, ability_score)
 end
+
 
 # Create character - campaign associations
 Character.all.each do |character|

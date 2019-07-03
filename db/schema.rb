@@ -90,6 +90,7 @@ ActiveRecord::Schema.define(version: 2019_07_02_024551) do
     t.string "name"
     t.integer "level"
     t.integer "hit_points"
+    t.integer "hp_levels"
     t.text "bio"
     t.bigint "player_class_id"
     t.bigint "subclass_id"

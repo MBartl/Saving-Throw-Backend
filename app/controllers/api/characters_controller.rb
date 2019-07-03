@@ -8,6 +8,7 @@ class Api::CharactersController < ApplicationController
     end
   end
 
+
   def show
     @character = Character.find(params[:id])
 
@@ -15,32 +16,30 @@ class Api::CharactersController < ApplicationController
     render json: @response
   end
 
+
   def create
     # Get and Format Attributes from Params
-    bio = character_params[:biography].gsub(/\n/, '').gsub(/\\/, '').gsub(/"/, '')
-    user = session_user
-    player_class = PlayerClass.find{|pc| pc.name == character_params[:player_class]}
-    race = Race.find{|r| r.name == character_params[:race]}
-    subclass = Subclass.find{|sc| sc.name == character_params[:subclass]}
-    subrace = character_params[:subrace] ? character_params[:subrace] : nil
+    @bio = character_params[:biography].gsub(/\n/, '').gsub(/\\/, '').gsub(/"/, '')
+    @user = session_user
+    @player_class = PlayerClass.find{|pc| pc.name == character_params[:player_class]}
+    @race = Race.find{|r| r.name == character_params[:race]}
+    @subclass = Subclass.find{|sc| sc.name == character_params[:subclass]}
+    @subrace = character_params[:subrace] ? Subrace.find{|sr| sr.name == character_params[:subrace]} : nil
 
     # Create Character
-    @character = Character.create(user: user, name: character_params[:name], level: character_params[:level], bio: bio, hit_points: player_class.hit_die, player_class: player_class, race: race, subclass: subclass, subrace: subrace)
+    @character = Character.create(user: @user, name: character_params[:name], level: character_params[:level], bio: @bio, hit_points: @player_class.hit_die, hp_levels: 1, player_class: @player_class, race: @race, subclass: @subclass, subrace: @subrace)
 
     # Create Ability Score
-    ascore = character_params[:ability_score].split(', ')
-
-    @ability_score = AbilityScore.create(character: @character, strength: ascore[0], dexterity: ascore[1], constitution: ascore[2], intelligence: ascore[3], wisdom: ascore[4], charisma: ascore[5])
+    @rawscore = character_params[:ability_score].split(', ')
+    @ability_score = create_ascore(@character, @rawscore)
 
     # Create Character Proficiencies
-    player_class.class_proficiencies.each do |class_proficiency|
-      CharacterProficiency.create(character: @character, proficiency: class_proficiency.proficiency)
-    end
+    create_proficiencies(@player_class, @character)
 
     # Create Skills
     set_skills(@character, @ability_score)
 
-    # Return character or errors
+    # Render character or errors
     if @character.valid?
       @player_choices = @character.character_proficiency_choices
       @class_choices = @character.player_class.class_proficiency_choices
@@ -50,7 +49,7 @@ class Api::CharactersController < ApplicationController
       render json: @response
     else
       @all_errors = ''
-      @user.errors.full_messages.each do |error|
+      @character.errors.full_messages.each do |error|
         if @all_errors === ''
           @all_errors += "#{error}"
         else
@@ -62,9 +61,22 @@ class Api::CharactersController < ApplicationController
     end
   end
 
+
   private
   def character_params
     params.require(:character).permit(:name, :level, :player_class, :race, :subclass, :subrace, :biography, :ability_score)
+  end
+
+  # Create Ability Score
+  def create_ascore(character, rawscore)
+    return AbilityScore.create(character: character, strength: rawscore[0], dexterity: rawscore[1], constitution: rawscore[2], intelligence: rawscore[3], wisdom: rawscore[4], charisma: rawscore[5])
+  end
+
+  # Create Character Proficiencies
+  def create_proficiencies(player_class, character)
+    player_class.class_proficiencies.each do |class_proficiency|
+      CharacterProficiency.create(character: character, proficiency: class_proficiency.proficiency)
+    end
   end
 
   # Create Skills List

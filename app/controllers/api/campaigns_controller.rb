@@ -17,7 +17,7 @@ class Api::CampaignsController < ApplicationController
     @campaign = Campaign.create(campaign_params)
 
     if @campaign.valid?
-      render json: @campaign
+      render json: @campaign, status: :accepted
     else
       @all_errors = ''
       @user.errors.full_messages.each do |error|

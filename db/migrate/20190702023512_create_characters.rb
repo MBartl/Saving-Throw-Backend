@@ -5,6 +5,7 @@ class CreateCharacters < ActiveRecord::Migration[5.2]
       t.string :name
       t.integer :level
       t.integer :hit_points
+      t.integer :hp_levels
       t.text :bio
       t.belongs_to :player_class, foreign_key: true
       t.belongs_to :subclass, foreign_key: true
