@@ -2,13 +2,17 @@ class Api::CampaignsController < ApplicationController
 
   def index
     if session_user
-      @campaigns = DmCampaign.all.select{|join| join.user === session_user}.map{|join| join.campaign}
+      @campaigns = []
+      @characters = []
 
-      @characters = Character.all.select{|character| character.user === session_user}.select{|character| character.campaigns != []}
+      Campaign.all.each do |campaign|
+        dm = campaign.dm_campaigns.first
+        users = campaign.characters.map(&:user)
+        @campaigns.push(campaign) if dm && dm.user === session_user
+        @characters.push(campaign) if users.include?(session_user)
+      end
 
-      @characterCampaigns = @characters.map(&:campaigns).map{|c| c[0]}.uniq if @characters != []
-
-      @response = {campaigns: @campaigns, characterCampaigns: @characterCampaigns}
+      @response = {campaigns: @campaigns, characterCampaigns: @characters}
       render json: @response, status: :accepted
     end
   end
@@ -32,8 +36,12 @@ class Api::CampaignsController < ApplicationController
   end
 
   def discover
-    @campaigns = Campaign.all.select{|c| c.characters.count < c.max_players}
-    @dmNeeded = Campaign.all.select{|c| c.dm_campaigns === []}
+    @campaigns = []
+    @dmNeeded = []
+    Campaign.all.each do |c|
+      @campaigns.push(c)
+      @dmNeeded.push(c) if c.dm_campaigns === []
+    end
 
     @response = { campaigns: @campaigns, dmNeeded: @dmNeeded }
     render json: @response, status: :accepted

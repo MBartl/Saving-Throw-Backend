@@ -9,7 +9,7 @@ class Api::UsersController < ApplicationController
     @user = User.create(user_params)
     if @user.valid? && params[:user][:password] === params[:user][:confirmation]
       token = encode_token(@user.id)
-			render json: { user: UserSerializer.new(@user), token: token }, status: :accepted
+			render json: { user: UserSerializer.new(@user), token: token, path: 'signup' }, status: :accepted
     else
       @all_errors = ''
       @user.errors.full_messages.each do |error|
