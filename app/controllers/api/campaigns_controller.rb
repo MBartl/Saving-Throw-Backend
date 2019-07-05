@@ -39,8 +39,9 @@ class Api::CampaignsController < ApplicationController
     @campaigns = []
     @dmNeeded = []
     Campaign.all.each do |c|
-      @campaigns.push(c)
-      @dmNeeded.push(c) if c.dm_campaigns === []
+      new = !c.characters.map(&:user).include?(session_user)
+      @campaigns.push(c) if new
+      @dmNeeded.push(c) if c.dm_campaigns === [] && new
     end
 
     @response = { campaigns: @campaigns, dmNeeded: @dmNeeded }
