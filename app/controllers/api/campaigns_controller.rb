@@ -5,11 +5,11 @@ class Api::CampaignsController < ApplicationController
       @campaigns = []
       @characters = []
 
-      Campaign.all.each do |campaign|
-        dm = campaign.dm_campaigns.first
-        users = campaign.characters.map(&:user)
-        @campaigns.push(campaign) if dm && dm.user === session_user
-        @characters.push(campaign) if users.include?(session_user)
+      Campaign.all.each do |c|
+        dm = c.dm_campaigns.first
+        users = c.characters.map(&:user)
+        @campaigns.push({campaign: c, characters: c.characters}) if dm && dm.user === session_user
+        @characters.push({campaign: c, characters: c.characters}) if users.include?(session_user)
       end
 
       @response = {campaigns: @campaigns, characterCampaigns: @characters}
@@ -40,8 +40,8 @@ class Api::CampaignsController < ApplicationController
     @dmNeeded = []
     Campaign.all.each do |c|
       new = !c.characters.map(&:user).include?(session_user)
-      @campaigns.push(c) if new
-      @dmNeeded.push(c) if c.dm_campaigns === [] && new
+      @campaigns.push({campaign: c, characters: c.characters}) if new
+      @dmNeeded.push({campaign: c, characters: c.characters}) if c.dm_campaigns === [] && new
     end
 
     @response = { campaigns: @campaigns, dmNeeded: @dmNeeded }
