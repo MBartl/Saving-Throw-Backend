@@ -37,14 +37,12 @@ class Api::CampaignsController < ApplicationController
 
   def discover
     @campaigns = []
-    @dmNeeded = []
     Campaign.all.each do |c|
       new = !c.characters.map(&:user).include?(session_user)
-      @campaigns.push({campaign: c, characters: c.characters}) if new
-      @dmNeeded.push({campaign: c, characters: c.characters}) if c.dm_campaigns === [] && new
+      @campaigns.push({campaign: c, characters: c.characters, dmNeeded: c.dm_campaigns === [] ? true : false}) if new
     end
 
-    @response = { campaigns: @campaigns, dmNeeded: @dmNeeded }
+    @response = { campaigns: @campaigns }
     render json: @response, status: :accepted
   end
 
