@@ -38,7 +38,7 @@ class Api::CampaignsController < ApplicationController
   def discover
     @campaigns = []
     Campaign.all.each do |c|
-      new = !c.characters.map(&:user).include?(session_user)
+      new = !c.characters.map(&:user).include?(session_user) || !c.dm_campaigns.map(&:user)[0] === session_user
       @campaigns.push({campaign: c, characters: c.characters, dmNeeded: c.dm_campaigns === [] ? true : false}) if new
     end
 

@@ -12,16 +12,20 @@ url = "http://www.dnd5eapi.co/api/"
 # Reset Characters and User Related Models
 AbilityScore.destroy_all
 Skill.destroy_all
+CharacterProficiency.destroy_all
 CampaignCharacter.destroy_all
 Character.destroy_all
 
 AbilityScore.reset_pk_sequence
 Skill.reset_pk_sequence
+CharacterProficiency.reset_pk_sequence
 CampaignCharacter.reset_pk_sequence
 Character.reset_pk_sequence
 
 DmCampaign.destroy_all
 DmCampaign.reset_pk_sequence
+CampaignOwner.destroy_all
+CampaignOwner.reset_pk_sequence
 
 Following.destroy_all
 Following.reset_pk_sequence
@@ -30,6 +34,7 @@ User.destroy_all
 User.reset_pk_sequence
 
 
+puts "creating users and followings..."
 # Create Sample Users
 z = 1
 18.times do
@@ -96,6 +101,7 @@ Subclass.reset_pk_sequence
 PlayerClass.reset_pk_sequence
 
 
+print "seeding core game data."
 # Seed Classes
 i = 0
 12.times do
@@ -112,6 +118,7 @@ j = 0
   Subclass.create!(name: data['name'], player_class: PlayerClass.find {|x| x.name == data['class']['name']}, flavor: data['subclass_flavor'], desc: data['desc'][0])
 end
 
+print '.'
 # Seed Proficiencies and ClassProficiencies
 l = 0
 122.times do
@@ -123,6 +130,7 @@ l = 0
   end
 end
 
+print '.'
 # Seed Races
 k = 0
 9.times do
@@ -187,12 +195,14 @@ r = 0
   end
 end
 
+print '.'
 # Seed Features
 s = 0
 414.times do
   s += 1
   data = JSON.parse(RestClient.get(url + "features/#{s}"))
   Feature.create(name: data['name'], player_class: PlayerClass.find{|pc| pc.name == data['class']['name']}, level: data['level'], desc: data['desc'].join('<<|>>'))
+  print '.' if s === 207
 end
 
 # Seed Spellcasting info
@@ -204,6 +214,7 @@ q = 0
   Spellcasting.create(ability: data['spellcasting_ability']['name'], player_class: PlayerClass.find{|pc| pc.name == data['class']['name']}, level: data['level'], info: data['info'].map{|info| info['name'] + ": " + info['desc'][0]}.join('<<|>>').gsub(/â€™/, "'").gsub(/â€�/, '"').gsub(/â€œ/, '"'))
 end
 
+print '.'
 # Seed Spells and Class/Subclass-Spell join table
 n = 0
 319.times do
@@ -218,72 +229,87 @@ n = 0
   data['subclasses'].each do |subclass|
     ClassSpell.create(subclass: Subclass.find {|x| x.name == subclass['name']}, spell: spell)
   end
+  print '.' if n === 160
 end
 
 
 
 
-
+puts "\ncreating campaigns..."
 # Create campaigns
 Campaign.destroy_all
 Campaign.reset_pk_sequence
 
-c1 = Campaign.create(name: "Curse of Strahd", description: "The master of nearby Castle Ravenloft, Count Strahd von Zarovich, tyrannically rules the country, and the residents must barricade their doors each night to avoid attacks by Strahd and his minions. The Burgomaster's mansion is the focus of these attacks, and, for reasons that are not explained, Strahd is after the Burgomaster's adopted daughter, Ireena Kolyana. There are four possible motivations for Strahd. He may want to replace one of the PCs and attempt to turn the character into a vampire and take on that character's form. He may desire the love of Ireena, whose appearance matches that of his lost love, Tatyana. Using mind control, Strahd will try to force a PC to attack Ireena and gain her love by 'saving' her from the situation he created. Strahd may also want to create an evil magic item, or destroy the Sunsword.", max_players: rand(6)+6, open_invite: true, closed: false)
+c1 = Campaign.create(name: "Curse of Strahd", description: "The master of nearby Castle Ravenloft, Count Strahd von Zarovich, tyrannically rules the country, and the residents must barricade their doors each night to avoid attacks by Strahd and his minions. The Burgomaster's mansion is the focus of these attacks, and, for reasons that are not explained, Strahd is after the Burgomaster's adopted daughter, Ireena Kolyana. There are four possible motivations for Strahd. He may want to replace one of the PCs and attempt to turn the character into a vampire and take on that character's form. He may desire the love of Ireena, whose appearance matches that of his lost love, Tatyana. Using mind control, Strahd will try to force a PC to attack Ireena and gain her love by 'saving' her from the situation he created. Strahd may also want to create an evil magic item, or destroy the Sunsword.", max_players: rand(6)+6, open_invite: true)
 c1.update(open_invite: false) if rand(4) == 1
 
-c2 = Campaign.create(name: "Ghosts of Saltmarsh", description: "Desolate and abandoned, the evil alchemist's mansion stands alone on the cliff, looking out towards the sea. Mysterious lights and ghostly hauntings have kept away the people of Saltmarsh, despite rumors of fabulous forgotten treasure. What is its sinister secret?", max_players: rand(6)+6, open_invite: true, closed: false)
+c2 = Campaign.create(name: "Ghosts of Saltmarsh", description: "Desolate and abandoned, the evil alchemist's mansion stands alone on the cliff, looking out towards the sea. Mysterious lights and ghostly hauntings have kept away the people of Saltmarsh, despite rumors of fabulous forgotten treasure. What is its sinister secret?", max_players: rand(6)+6, open_invite: true)
 c2.update(open_invite: false) if rand(4) == 1
 
-c3 = Campaign.create(name: "Hoard of the Dragon Queen", description: "In an audacious bid for power, the Cult of the Dragon, along with its dragon allies and the Red Wizards of Thay, seek to bring Tiamat from her prison in the Nine Hells to Faerûn. To this end, they are sweeping from town to town, laying waste to all those who oppose them and gathering a hoard of riches for their dread queen. The threat of annihilation has become so dire that groups as disparate as the Harpers and Zhentarim are banding together in the fight against the cult. Never before has the need for heroes been so desperate.", max_players: rand(6)+6, open_invite: true, closed: false)
+c3 = Campaign.create(name: "Hoard of the Dragon Queen", description: "In an audacious bid for power, the Cult of the Dragon, along with its dragon allies and the Red Wizards of Thay, seek to bring Tiamat from her prison in the Nine Hells to Faerûn. To this end, they are sweeping from town to town, laying waste to all those who oppose them and gathering a hoard of riches for their dread queen. The threat of annihilation has become so dire that groups as disparate as the Harpers and Zhentarim are banding together in the fight against the cult. Never before has the need for heroes been so desperate.", max_players: rand(6)+6, open_invite: true)
 c3.update(open_invite: false) if rand(4) == 1
 
-c4 = Campaign.create(name: "Out of the Abyss", description: "The Underdark is a subterranean wonderland, a vast and twisted labyrinth where fear reigns. It is the home of horrific monsters that have never seen the light of day. It is here that the dark elf Gromph Baenre, Archmage of Menzoberranzan, casts a foul spell meant to ignite a magical energy that suffuses the Underdark and tears open portals to the demonic Abyss. What steps through surprises even him, and from that moment on, the insanity that pervades the Underdark escalates and threatens to shake the Forgotten Realms to its foundations. Stop the madness before it consumes you!", max_players: rand(6)+6, open_invite: true, closed: false)
+c4 = Campaign.create(name: "Out of the Abyss", description: "The Underdark is a subterranean wonderland, a vast and twisted labyrinth where fear reigns. It is the home of horrific monsters that have never seen the light of day. It is here that the dark elf Gromph Baenre, Archmage of Menzoberranzan, casts a foul spell meant to ignite a magical energy that suffuses the Underdark and tears open portals to the demonic Abyss. What steps through surprises even him, and from that moment on, the insanity that pervades the Underdark escalates and threatens to shake the Forgotten Realms to its foundations. Stop the madness before it consumes you!", max_players: rand(6)+6, open_invite: true)
 c4.update(open_invite: false) if rand(4) == 1
 
-c5 = Campaign.create(name: "Tales from the Yawning Portal", description: "When the shadows grow long in Waterdeep and the fireplace in the taproom of the Yawning Portal dims to a deep crimson glow, adventurers from across the Forgotten Realms, and even from other worlds, spin tales and spread rumors of dark dungeons and lost treasures. Some of the yarns overheard by Durnan, the barkeep of the Yawning Portal, are inspired by places and events in far-flung lands from across the D&D multiverse, and these tales have been collected into a single volume.", max_players: rand(6)+6, open_invite: true, closed: false)
+c5 = Campaign.create(name: "Tales from the Yawning Portal", description: "When the shadows grow long in Waterdeep and the fireplace in the taproom of the Yawning Portal dims to a deep crimson glow, adventurers from across the Forgotten Realms, and even from other worlds, spin tales and spread rumors of dark dungeons and lost treasures. Some of the yarns overheard by Durnan, the barkeep of the Yawning Portal, are inspired by places and events in far-flung lands from across the D&D multiverse, and these tales have been collected into a single volume.", max_players: rand(6)+6, open_invite: true)
 c5.update(open_invite: false) if rand(4) == 1
 
-c6 = Campaign.create(name: "Return of Tiamat", description: "The Cult of the Dragon leads the charge in an unholy crusade to bring Tiamat back to the Realms, and the situation grows more perilous for good people with each passing moment. The battle becomes increasingly political as opportunities to gather allies and gain advantage present themselves. From Waterdeep to the Sea of Moving Ice to Thay, it is a race against Evil. Succeed or succumb to the oppression of draconic tyranny. Win or lose, things will never be the same again.", max_players: rand(6)+6, open_invite: true, closed: false)
+c6 = Campaign.create(name: "Return of Tiamat", description: "The Cult of the Dragon leads the charge in an unholy crusade to bring Tiamat back to the Realms, and the situation grows more perilous for good people with each passing moment. The battle becomes increasingly political as opportunities to gather allies and gain advantage present themselves. From Waterdeep to the Sea of Moving Ice to Thay, it is a race against Evil. Succeed or succumb to the oppression of draconic tyranny. Win or lose, things will never be the same again.", max_players: rand(6)+6, open_invite: true)
 c6.update(open_invite: false) if rand(4) == 1
 
-c7 = Campaign.create(name: "Princes of the Apocolypse", description: "A terrible threat gathers in the North. Throughout this region of the Forgotten Realms, savage marauders bring destruction. Monsters are on the prowl, preying on flocks, rampaging through croplands, and attacking homesteads and travelers. In settlements, discord and suspicion grow. Sinister strangers lurk in the shadows, whispering about how everything is soon to change.", max_players: rand(6)+6, open_invite: true, closed: false)
+c7 = Campaign.create(name: "Princes of the Apocolypse", description: "A terrible threat gathers in the North. Throughout this region of the Forgotten Realms, savage marauders bring destruction. Monsters are on the prowl, preying on flocks, rampaging through croplands, and attacking homesteads and travelers. In settlements, discord and suspicion grow. Sinister strangers lurk in the shadows, whispering about how everything is soon to change.", max_players: rand(6)+6, open_invite: true)
 c7.update(open_invite: false) if rand(4) == 1
 
-c8 = Campaign.create(name: "Death House", description: "Death House is the name given to an old row house in the village of Barovia (area E7 on the village map). The house has been burned to the ground many times, only to rise from the ashes time and again—by its own will or that of Strahd. Locals give the building a wide berth for fear of antagonizing the evil spirits believed to haunt it.", max_players: rand(6)+6, open_invite: true, closed: false)
+c8 = Campaign.create(name: "Death House", description: "Death House is the name given to an old row house in the village of Barovia. The house has been burned to the ground many times, only to rise from the ashes time and again—by its own will or that of Strahd. Locals give the building a wide berth for fear of antagonizing the evil spirits believed to haunt it.", max_players: rand(6)+6, open_invite: true)
 c8.update(open_invite: false) if rand(4) == 1
 
-c9 = Campaign.create(name: "Tyranny in Phlan", description: "Things are changing in Phlan, and for the worse. The Cult of the Dragon has spies deeply rooted in the castle and has been corrupting many of the town’s defenders, gathering new allies and otherwise readying to make a move for control of the town and the Pool of Radiance that lies beneath it. Knight Commander Ector Brahms, the Lord Regent of Phlan, has called a secret summit of the masters of the town’s four major guilds and the head of each noble house. At the foot of the Cinnabar Throne, he plans to hammer out the terms of an alliance and bring order and peace to the town once and for all. It is here, however, that the hammer will fall in the form of Vorgansharax, the Maimed Virulence: a green dragon who has allied himself with the Cult of the Dragon in exchange for dominion over Phlan.", max_players: rand(6)+6, open_invite: true, closed: false)
+c9 = Campaign.create(name: "Tyranny in Phlan", description: "Things are changing in Phlan, and for the worse. The Cult of the Dragon has spies deeply rooted in the castle and has been corrupting many of the town’s defenders, gathering new allies and otherwise readying to make a move for control of the town and the Pool of Radiance that lies beneath it. Knight Commander Ector Brahms, the Lord Regent of Phlan, has called a secret summit of the masters of the town’s four major guilds and the head of each noble house. At the foot of the Cinnabar Throne, he plans to hammer out the terms of an alliance and bring order and peace to the town once and for all. It is here, however, that the hammer will fall in the form of Vorgansharax, the Maimed Virulence: a green dragon who has allied himself with the Cult of the Dragon in exchange for dominion over Phlan.", max_players: rand(6)+6, open_invite: true)
 c9.update(open_invite: false) if rand(4) == 1
 
 c10 = Campaign.create(name: "A Wild Sheep Chase", description: "The party’s attempt to grab a rare afternoon of downtime is interrupted by a frantic sheep equipped with a Scroll of Speak to Animals and a fierce determination to get their attention. With the aid of some magic, the creature reveals itself to be no mere beast, but a wizard who fell victim to an embittered apprentice and a stolen Wand of True Polymorph.
-After two years imprisoned with nothing to eat but his own lawn, the ex-elf has escaped and is in dire need of aid. Transformed assassins are looking to grab themselves a mutton dinner, while the only object capable of restoring his opposable thumbs lies in the hands of his former pupil and current nemesis. Fortunately, the wooly wizard has found new allies he can rely on, right?", max_players: rand(6)+6, open_invite: true, closed: false)
+After two years imprisoned with nothing to eat but his own lawn, the ex-elf has escaped and is in dire need of aid. Transformed assassins are looking to grab themselves a mutton dinner, while the only object capable of restoring his opposable thumbs lies in the hands of his former pupil and current nemesis. Fortunately, the wooly wizard has found new allies he can rely on, right?", max_players: rand(6)+6, open_invite: true)
 c10.update(open_invite: false) if rand(4) == 1
 
 c11 = Campaign.create(name: "The Wolves of Welton", description: "It’s been a long time since the people of Welton have worried about anything more frightening than sheep ticks or a late frost, but now a pack of strangely determined wolves is driving farmers from their fields and spiriting away entire flocks in the middle of the night.
-With food supplies running low and their sorcerer-in-residence nowhere to be found, the village council sends out a desperate plea for brave adventurers to destroy the beasts for good. Is the job as easy as a walk in the woods, or is there more to the Wolves of Welton than mere animal cunning? There's only one way to find out…", max_players: rand(6)+6, open_invite: true, closed: false)
+With food supplies running low and their sorcerer-in-residence nowhere to be found, the village council sends out a desperate plea for brave adventurers to destroy the beasts for good. Is the job as easy as a walk in the woods, or is there more to the Wolves of Welton than mere animal cunning? There's only one way to find out…", max_players: rand(6)+6, open_invite: true)
 c11.update(open_invite: false) if rand(4) == 1
 
 c12 = Campaign.create(name: "The Fiery Grog", description: "The Fiery Grog is a popular watering hole for the more rough and tumble folk of Port Myrandu. The seedy tavern is often the meeting place for shady dealings kept hidden by the loud drunken activities that permeate the building each night.
-Whether your adventurers are meeting an important NPC in private, they’re in need of a quest hook or two to move the adventure forward, or looking to blow off some steam by partying hard and maybe get into a brawl, the Fiery Grog is the place to go.", max_players: rand(6)+6, open_invite: true, closed: false)
+Whether your adventurers are meeting an important NPC in private, they’re in need of a quest hook or two to move the adventure forward, or looking to blow off some steam by partying hard and maybe get into a brawl, the Fiery Grog is the place to go.", max_players: rand(6)+6, open_invite: true)
 c12.update(open_invite: false) if rand(4) == 1
 
-c13 = Campaign.create(name: "Madness of the Rat King", description: "An ambitious were-rat alchemist known only as 'the Rat King' set up a base of operations down in these caverns a year ago. He has been working tirelessly in his laboratory since then, using alchemy and magic to mutate and breed loyal rat minions to suit his needs: for example, combining rats with aberrant beholder essence to create loyal 'laser rats' with the ability to float and shoot fiery rays, as alchemists are wont to do. To sustain his operations, he sends his rat minions out into the world to collect supplies, from food/drink to other necessary equipment.
-The initial motives for the Rat King’s experimentation is a mystery even to himself. At some point during his time in these caverns, a dark influence took hold of him, slowly driving him insane. The Rat King now has one clear goal in his crazed mind: to create an army of mutant rats and take over the surface, to escape and protect the world from what he calls “the Old Voice,” a malicious entity that whispers to him endlessly from the deep.", max_players: rand(6)+6, open_invite: true, closed: false)
+c13 = Campaign.create(name: "Madness of the Rat King", description: "An ambitious were-rat alchemist known only as 'the Rat King' set up a base of operations down in these caverns a year ago. He has been working tirelessly in his laboratory since then, using alchemy and magic to mutate and breed loyal rat minions to suit his needs: for example, combining rats with aberrant beholder essence to create loyal 'laser rats' with the ability to float and shoot fiery rays, as alchemists are wont to do.
+The initial motives for the Rat King’s experimentation is a mystery even to himself. At some point during his time in these caverns, a dark influence took hold of him, slowly driving him insane. The Rat King now has one clear goal in his crazed mind: to create an army of mutant rats and take over the surface, to escape and protect the world from what he calls “the Old Voice,” a malicious entity that whispers to him endlessly from the deep.", max_players: rand(6)+6, open_invite: true)
 c13.update(open_invite: false) if rand(4) == 1
 
 c14 = Campaign.create(name: "Seven Weddings", description: "Lilian was a witch who studied the arcane in a hamlet called Lukestown. Her love of mysticisms was only eclipsed by her love for her fiancé Marcus. Lilian loved him so much, she began crafting a pair of magical rings that would grant her and Marcus immortality. However, the powerful magics involved were well beyond Lilian’s skills. One night while working on the rings, the life and death magics went awry, killing Lilian.
-Marcus was crushed. They laid Lilian to rest in the town’s mausoleum. It was not long before Lilian's spirit rose, fueled by her own foul magics. Marcus tried to visit, but over time, Lilian grew more and more hateful. Marcus stopped visiting when it became clear her undead nature had overpowered any humanity left within.", max_players: rand(6)+6, open_invite: true, closed: false)
+Marcus was crushed. They laid Lilian to rest in the town’s mausoleum. It was not long before Lilian's spirit rose, fueled by her own foul magics. Marcus tried to visit, but over time, Lilian grew more and more hateful. Marcus stopped visiting when it became clear her undead nature had overpowered any humanity left within.", max_players: rand(6)+6, open_invite: true)
 c14.update(open_invite: false) if rand(4) == 1
+
+# # Sylwia easter egg
+# Campaign.create(
+#   name: "Sylwia's Candy Kingdom",
+#   description: "Oh save the candy floss!",
+#   max_players: 14,
+#   open_invite: true
+# )
 
 # Create DM's
 Campaign.all.each do |campaign|
-  if rand(2) > 0
+  if rand(3) > 0
     DmCampaign.create(campaign: campaign, user: User.all.sample)
   end
 end
 
-
-
+# Create DM ownerships
+Campaign.all.each do |campaign|
+  if rand(4)+1 > 3
+    CampaignOwner.create(campaign: campaign, user: User.all.sample)
+  else
+    CampaignOwner.create(campaign: campaign, user: campaign.dm_campaigns.map(&:user)[0])
+  end
+end
 
 
 # Create character proficiencies
@@ -340,7 +366,7 @@ def create_skills(new, ability_score)
   Skill.create(character: new, athletics: athletics, acrobatics: acrobatics, sleight_of_hand: sleight_of_hand, stealth: stealth, arcana: arcana, history: history_s, investigation: investigation, nature: nature, religion: religion, animal_handling: animal_handling, insight: insight, medicine: medicine, perception: perception, survival: survival, deception: deception, intimidation: intimidation, performance: performance, persuasion: persuasion)
 end
 
-
+puts "creating characters..."
 # Create characters main function
 def create_character(name)
   player_class = PlayerClass.all.sample
@@ -358,6 +384,11 @@ def create_character(name)
     hp += rand(new.player_class.hit_die-3)+2+((ability_score.constitution-10)/2)
   end
   new.update(hit_points: hp)
+
+  # Create character proficiencies
+  player_class.class_proficiencies.each do |class_proficiency|
+    CharacterProficiency.create(character: new, proficiency: class_proficiency.proficiency)
+  end
 
   # Add race and subrace bonuses
   str_bonus = new.race.ability_bonuses[1].to_i
@@ -423,19 +454,44 @@ end
   create_character(name)
 end
 
-
+# # Sylwia easter egg
+# sylw = Character.create(
+#   name: "Sylwia",
+#   level: 20,
+#   hit_points: 12,
+#   hp_levels: 1,
+#   bio: "Sylwia sleeps a lot.",
+#   player_class_id: 1,
+#   subclass_id: 1,
+#   race_id: 5,
+#   subrace_id: nil
+# )
+#
+# sylw.player_class.class_proficiencies.each do |class_proficiency|
+#   CharacterProficiency.create(character: sylw, proficiency: class_proficiency.proficiency)
+# end
+#
+# ability_score = AbilityScore.create(character: sylw, strength: 22, dexterity: 18, constitution: 20, intelligence: 8, wisdom: 24, charisma: 30)
+#
+# create_proficiencies(sylw, ability_score)
+# create_skills(sylw, ability_score)
+#
 # # THE LEGEND #
-# # (easter egg for Gino) # #
+# # (Gino easter egg) # #
 # 1.times do
 #   player_class = PlayerClass.all[6]
 #   theLegendPB = Character.create(user: User.all.sample, name: "Paul Blart the Magnificent", level: 20, bio: "Safety never takes a holiday.", race: Race.all[3], player_class: player_class, hit_points: 161, hp_levels: 20, subclass: Subclass.find {|x| x.player_class == player_class})
 #   ability_score = AbilityScore.create(character: theLegendPB, strength: 22, dexterity: 18, constitution: 20, intelligence: 8, wisdom: 24, charisma: 30)
 #
+# theLegendPB.player_class.class_proficiencies.each do |class_proficiency|
+#   CharacterProficiency.create(character: theLegendPB, proficiency: class_proficiency.proficiency)
+# end
+#
 #   create_proficiencies(theLegendPB, ability_score)
 #   create_skills(theLegendPB, ability_score)
 # end
 
-
+puts "finishing campaign associations..."
 # Create character/campaign associations
 Character.all.each do |character|
   character.name == "Paul Blart the Magnificent" ? return :
@@ -453,7 +509,6 @@ Campaign.all.each do |campaign|
 end
 
 
-
 # # TO DO: Add equipment, race proficiencies, languages, character spells, images
 # # Seed Equipment
 # o = 0
@@ -465,3 +520,5 @@ end
 #
 # # Seed Images
 # https://loremflickr.com/320/240/dnd
+
+puts "done!"

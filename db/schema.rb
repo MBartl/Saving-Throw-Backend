@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_07_02_024551) do
+ActiveRecord::Schema.define(version: 2019_07_08_180445) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -37,13 +37,21 @@ ActiveRecord::Schema.define(version: 2019_07_02_024551) do
     t.index ["character_id"], name: "index_campaign_characters_on_character_id"
   end
 
+  create_table "campaign_owners", force: :cascade do |t|
+    t.bigint "user_id"
+    t.bigint "campaign_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["campaign_id"], name: "index_campaign_owners_on_campaign_id"
+    t.index ["user_id"], name: "index_campaign_owners_on_user_id"
+  end
+
   create_table "campaigns", force: :cascade do |t|
     t.string "name"
     t.text "description"
     t.text "pictures"
     t.integer "max_players"
     t.boolean "open_invite"
-    t.boolean "closed"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
@@ -333,6 +341,8 @@ ActiveRecord::Schema.define(version: 2019_07_02_024551) do
   add_foreign_key "ability_scores", "characters"
   add_foreign_key "campaign_characters", "campaigns"
   add_foreign_key "campaign_characters", "characters"
+  add_foreign_key "campaign_owners", "campaigns"
+  add_foreign_key "campaign_owners", "users"
   add_foreign_key "character_equipments", "characters"
   add_foreign_key "character_equipments", "equipment"
   add_foreign_key "character_proficiencies", "characters"
