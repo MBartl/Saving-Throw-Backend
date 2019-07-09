@@ -3,17 +3,15 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby '2.6.1'
 
-# Faker
-gem 'faker'
-# Seralize models
-gem 'active_model_serializers'
-# Don't cry use pry
-gem 'pry'
 # Getting data from D&D API
 gem 'json'
 gem 'rest-client'
 # For clean resets
 gem 'activerecord-reset-pk-sequence'
+# Faker
+gem 'faker'
+# Don't cry use pry
+gem 'pry'
 # Serializer
 gem 'active_model_serializers'
 
@@ -26,7 +24,7 @@ gem 'puma', '~> 3.11'
 # Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
 # gem 'jbuilder', '~> 2.5'
 # Use Redis adapter to run Action Cable in production
-# gem 'redis', '~> 4.0'
+gem 'redis', '~> 4.0'
 # Use ActiveModel has_secure_password
 gem 'bcrypt', '~> 3.1.7'
 # JWT for encoding

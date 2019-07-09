@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_07_08_180445) do
+ActiveRecord::Schema.define(version: 2019_07_09_141538) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -113,6 +113,13 @@ ActiveRecord::Schema.define(version: 2019_07_08_180445) do
     t.index ["user_id"], name: "index_characters_on_user_id"
   end
 
+  create_table "chats", force: :cascade do |t|
+    t.bigint "campaign_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["campaign_id"], name: "index_chats_on_campaign_id"
+  end
+
   create_table "class_proficiencies", force: :cascade do |t|
     t.bigint "player_class_id"
     t.bigint "proficiency_id"
@@ -181,6 +188,14 @@ ActiveRecord::Schema.define(version: 2019_07_08_180445) do
     t.integer "following_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "messages", force: :cascade do |t|
+    t.text "text"
+    t.bigint "chat_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["chat_id"], name: "index_messages_on_chat_id"
   end
 
   create_table "player_classes", force: :cascade do |t|
@@ -356,6 +371,7 @@ ActiveRecord::Schema.define(version: 2019_07_08_180445) do
   add_foreign_key "characters", "subclasses"
   add_foreign_key "characters", "subraces"
   add_foreign_key "characters", "users"
+  add_foreign_key "chats", "campaigns"
   add_foreign_key "class_proficiencies", "player_classes"
   add_foreign_key "class_proficiencies", "proficiencies"
   add_foreign_key "class_proficiency_choices", "player_classes"
@@ -366,6 +382,7 @@ ActiveRecord::Schema.define(version: 2019_07_08_180445) do
   add_foreign_key "dm_campaigns", "campaigns"
   add_foreign_key "dm_campaigns", "users"
   add_foreign_key "features", "player_classes"
+  add_foreign_key "messages", "chats"
   add_foreign_key "race_proficiencies", "proficiencies"
   add_foreign_key "race_proficiencies", "races"
   add_foreign_key "race_proficiencies", "subraces"

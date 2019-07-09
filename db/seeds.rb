@@ -237,6 +237,10 @@ end
 
 puts "\ncreating campaigns..."
 # Create campaigns
+Messages.destroy_all
+Messages.reset_pk_sequence
+Chat.destroy_all
+Chat.reset_pk_sequence
 Campaign.destroy_all
 Campaign.reset_pk_sequence
 
@@ -295,21 +299,22 @@ c14.update(open_invite: false) if rand(4) == 1
 #   open_invite: true
 # )
 
-# Create DM's
+# Create DM's, Chats, and Ownerships
 Campaign.all.each do |campaign|
   if rand(3) > 0
     DmCampaign.create(campaign: campaign, user: User.all.sample)
   end
-end
 
-# Create DM ownerships
-Campaign.all.each do |campaign|
+  Chat.create(campaign: campaign)
+
   if rand(4)+1 > 3
     CampaignOwner.create(campaign: campaign, user: User.all.sample)
   else
     CampaignOwner.create(campaign: campaign, user: campaign.dm_campaigns.map(&:user)[0])
   end
 end
+
+
 
 
 # Create character proficiencies

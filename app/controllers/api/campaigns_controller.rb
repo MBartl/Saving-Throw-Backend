@@ -27,6 +27,25 @@ class Api::CampaignsController < ApplicationController
     end
   end
 
+  def update
+    params.require(:campaign).permit(:name, :description)
+
+    @campaign = Campaign.find(params[:id])
+    if (params[:campaign][:name])
+      @campaign.update(name: params[:campaign][:name])
+    else
+      @campaign.update(description: params[:campaign][:description])
+    end
+
+    if @campaign.valid?
+      @response = {campaign: {campaign: @campaign, characters: @campaign.characters}}
+      render json: @response, status: :accepted
+    else
+      handle_campaign_errors
+    end
+
+  end
+
   def discover
     @campaigns = []
     Campaign.all.each do |c|
@@ -34,7 +53,7 @@ class Api::CampaignsController < ApplicationController
       @campaigns.push({campaign: c, characters: c.characters, dmNeeded: c.dm_campaigns === [] ? true : false}) if new && c.max_players > c.characters.count && c.open_invite === true
     end
 
-    @response = { campaigns: @campaigns }
+    @response = {campaigns: @campaigns}
     render json: @response, status: :accepted
   end
 
