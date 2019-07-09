@@ -5,6 +5,7 @@ Rails.application.routes.draw do
     resources :campaigns, only: [:index, :create, :update]
     resources :characters, only: [:index, :show, :create, :update]
     get '/discover-campaigns', to: 'campaigns#discover'
+    post '/join-campaign', to: 'campaigns#join'
 
     get '/profile', to: 'users#profile'
 

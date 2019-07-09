@@ -4,7 +4,9 @@ class Api::CharactersController < ApplicationController
     if session_user
       @characters = Character.all.select{|character| character.user === session_user}
 
-      render json: {characters: @characters}, status: :accepted
+      @response = @characters.map{|c| CharacterSerializer.new(c)}
+
+      render json: {characters: @response}, status: :accepted
     end
   end
 
