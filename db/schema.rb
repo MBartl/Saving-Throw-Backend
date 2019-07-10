@@ -193,9 +193,11 @@ ActiveRecord::Schema.define(version: 2019_07_09_141538) do
   create_table "messages", force: :cascade do |t|
     t.text "text"
     t.bigint "chat_id"
+    t.bigint "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["chat_id"], name: "index_messages_on_chat_id"
+    t.index ["user_id"], name: "index_messages_on_user_id"
   end
 
   create_table "player_classes", force: :cascade do |t|
@@ -383,6 +385,7 @@ ActiveRecord::Schema.define(version: 2019_07_09_141538) do
   add_foreign_key "dm_campaigns", "users"
   add_foreign_key "features", "player_classes"
   add_foreign_key "messages", "chats"
+  add_foreign_key "messages", "users"
   add_foreign_key "race_proficiencies", "proficiencies"
   add_foreign_key "race_proficiencies", "races"
   add_foreign_key "race_proficiencies", "subraces"

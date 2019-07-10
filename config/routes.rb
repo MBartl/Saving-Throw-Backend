@@ -11,5 +11,9 @@ Rails.application.routes.draw do
 
     post '/login', to: 'auth#create'
     get '/auto_login', to: 'auth#auto_login'
+
+    resources :chats, only: [:index, :create, :update]
+    resources :messages, only: [:create]
+    mount ActionCable.server => '/cable'
   end
 end

@@ -65,9 +65,10 @@ class Api::CampaignsController < ApplicationController
     @cc = CampaignCharacter.create(campaign_id: params[:campaign][:campaign_id], character_id: char_id)
 
     @campaign = @cc.campaign
+    @chat = Chat.all.find{|c| c.campaign === @campaign}
 
     if @cc.valid?
-      render json: {campaign: {campaign: @campaign, characters: @campaign.characters}, character_id: char_id}, status: :accepted
+      render json: {campaign: {campaign: @campaign, characters: @campaign.characters}, chat: {id: @chat.id, campaign: @chat.campaign, characters: @campaign.characters}, character_id: char_id}, status: :accepted
     else
       handle_campaign_errors
     end
