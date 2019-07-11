@@ -6,4 +6,6 @@ class PlayerClass < ApplicationRecord
   has_many :class_proficiencies, dependent: :destroy
 
   has_many :proficiencies, through: :class_proficiencies
+
+  has_many :spellcastings
 end

@@ -10,14 +10,15 @@ class Api::CharactersController < ApplicationController
     end
   end
 
-
   def show
     @character = Character.find(params[:id])
 
-    @response = {character: @character, prof_choices: @character.character_proficiency_choices.count, class_choices: @class_choices}
+    @response = {character: CharacterSerializer.new(@character),
+      proficiencies: [@character.proficiencies, @character.character_proficiency_choices],
+      class_choices: @character.player_class.class_proficiency_choices}
+
     render json: @response, status: :accepted
   end
-
 
   def create
     # Get and Format Attributes from Params
@@ -42,7 +43,7 @@ class Api::CharactersController < ApplicationController
     set_skills(@character, @ability_score)
 
     # Render character or errors
-    if @character.valid?
+    if @character.save
       @player_choices = @character.character_proficiency_choices
       @class_choices = @character.player_class.class_proficiency_choices
 

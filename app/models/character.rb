@@ -18,4 +18,7 @@ class Character < ApplicationRecord
   has_many :character_proficiency_choices, dependent: :destroy
   has_many :character_proficiencies, dependent: :destroy
   has_many :character_spells, dependent: :destroy
+
+  has_many :class_proficiencies, through: :player_class
+  has_many :proficiencies, through: :class_proficiencies
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_07_09_141538) do
+ActiveRecord::Schema.define(version: 2019_07_10_223745) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -106,6 +106,7 @@ ActiveRecord::Schema.define(version: 2019_07_09_141538) do
     t.bigint "subrace_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "avatar"
     t.index ["player_class_id"], name: "index_characters_on_player_class_id"
     t.index ["race_id"], name: "index_characters_on_race_id"
     t.index ["subclass_id"], name: "index_characters_on_subclass_id"
