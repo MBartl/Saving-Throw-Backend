@@ -19,8 +19,10 @@ class Api::CampaignsController < ApplicationController
 
   def create
     @campaign = Campaign.create(campaign_params)
+    @chat = Chat.create(campaign: @campaign)
 
-    if @campaign.valid?
+    if @campaign.valid? && @chat.valid?
+      @response = { campaign: @campaign, chat: @chat }
       render json: @campaign, status: :accepted
     else
       handle_campaign_errors

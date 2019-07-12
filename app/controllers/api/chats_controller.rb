@@ -20,6 +20,6 @@ class Api::ChatsController < ApplicationController
   private
 
   def chat_params
-    params.require(:chat).permit(:title, :campaign)
+    params.require(:chat).permit(:campaign)
   end
 end
