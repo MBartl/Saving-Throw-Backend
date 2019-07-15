@@ -19,11 +19,12 @@ class Api::CampaignsController < ApplicationController
 
   def create
     @campaign = Campaign.create(campaign_params)
-    @chat = Chat.create(campaign: @campaign)
 
-    if @campaign.valid? && @chat.valid?
-      @response = { campaign: @campaign, chat: @chat }
-      render json: @campaign, status: :accepted
+    if @campaign.valid?
+      @dm_campaign = DmCampaign.create(user: session_user, campaign: @campaign)
+      @chat = Chat.create(campaign: @campaign)
+      @response = { campaign: {campaign: @campaign, characters: @campaign.characters}, chat: ChatSerializer.new(@chat) }
+      render json: @response, status: :accepted
     else
       handle_campaign_errors
     end
@@ -83,7 +84,7 @@ class Api::CampaignsController < ApplicationController
 
   def handle_campaign_errors
     @all_errors = ''
-    @user.errors.full_messages.each do |error|
+    @campaign.errors.full_messages.each do |error|
       if @all_errors === ''
         @all_errors += "#{error}"
       else
